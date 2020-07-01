@@ -1,6 +1,9 @@
 import cv2 
 import numpy as np
 
+def comparator(tupleElem):
+    return tupleElem[1][4]
+
 I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
 
 #Load the dictionary that was used to generate the markers.
@@ -42,5 +45,5 @@ H = cv2.getPerspectiveTransform(src_points, dest_points)
 form = cv2.warpPerspective(I,H,  (rawForm.shape[1],rawForm.shape[0]))
 
 cv2.imshow('form', form)
-
 cv2.waitKey()
+
