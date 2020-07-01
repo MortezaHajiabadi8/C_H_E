@@ -24,3 +24,13 @@ dest_points = np.array([(0,0),
                         (form.shape[1],0),
                         (form.shape[1],form.shape[0]),
                         (0,form.shape[0])], dtype=np.float32)
+
+
+d = dict(enumerate(markerIds.flatten(), 1))
+key_list = list(d.keys())
+val_list = list(d.values()) 
+
+src_points = np.array([markerCorners[key_list[val_list.index(34)]-1][0][0],
+                       markerCorners[key_list[val_list.index(35)]-1][0][1],
+                       markerCorners[key_list[val_list.index(36)]-1][0][2],
+                       markerCorners[key_list[val_list.index(33)]-1][0][3]], dtype=np.float32)
