@@ -8,6 +8,5 @@ requirements:
 
 to see detected Markers in source image, uncomment the following lines:
 
-
     cv2.imshow('out', detectedMarkers)
     cv2.waitKey()

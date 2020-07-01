@@ -18,12 +18,12 @@ cv2.aruco.drawDetectedMarkers(detectedMarkers, markerCorners, markerIds)
 # cv2.imshow('out', detectedMarkers)
 # cv2.waitKey()
 
-form = cv2.imread('form.png', cv2.IMREAD_GRAYSCALE)
+rawForm = cv2.imread('form.png', cv2.IMREAD_GRAYSCALE)
 
 dest_points = np.array([(0,0),
-                        (form.shape[1],0),
-                        (form.shape[1],form.shape[0]),
-                        (0,form.shape[0])], dtype=np.float32)
+                        (rawForm.shape[1],0),
+                        (rawForm.shape[1],rawForm.shape[0]),
+                        (0,rawForm.shape[0])], dtype=np.float32)
 
 
 d = dict(enumerate(markerIds.flatten(), 1))
@@ -34,3 +34,13 @@ src_points = np.array([markerCorners[key_list[val_list.index(34)]-1][0][0],
                        markerCorners[key_list[val_list.index(35)]-1][0][1],
                        markerCorners[key_list[val_list.index(36)]-1][0][2],
                        markerCorners[key_list[val_list.index(33)]-1][0][3]], dtype=np.float32)
+
+# compute homography from point correspondences
+H = cv2.getPerspectiveTransform(src_points, dest_points)
+
+
+form = cv2.warpPerspective(I,H,  (rawForm.shape[1],rawForm.shape[0]))
+
+cv2.imshow('form', form)
+
+cv2.waitKey()
