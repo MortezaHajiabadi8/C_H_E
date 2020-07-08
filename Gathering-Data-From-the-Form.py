@@ -189,3 +189,37 @@ for contour in checkboxes:
     # cv2.imshow(contour[2], pic)
     # cv2.waitKey()
     # cv2.destroyAllWindows()
+    
+for contour in big_fileds:
+    
+    j = areas[contour[0]][0]
+    cnt = contours[j]
+    approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+    width = approx[1][0][0]-approx[0][0][0]
+    height = approx[3][0][1]-approx[0][0][1]
+    w = width//8
+    up = (approx[0][0][0],approx[0][0][1])
+    down = (approx[3][0][0],approx[3][0][1])
+    
+    dst_points = np.array([(0,0),
+                           (w,0),
+                           (w,height),
+                           (0,height)], dtype=np.float32)
+    for k in range(8):
+        tempup1 = (k*w,0)
+        tempup2 = ((k+1)*w,0)
+        tempdown1 =(k*w,0)
+        tempdown2 =((k+1)*w,0)
+        p1 = addPoints(up,tempup1)
+        p2 = addPoints(up,tempup2)
+        p3 = addPoints(down, tempdown2)
+        p4 = addPoints(down, tempdown1)
+        source__points = np.array([p1,p2,p3,p4], dtype=np.float32)
+        H = cv2.getPerspectiveTransform(source__points, dst_points)
+        pic = cv2.warpPerspective(croped_form,H,  (height,w))
+        cv2.imwrite(contour[2]+str(k+1)+".jpg", pic)
+        # cv2.imshow(c[2]+str(k+1), pic)
+        # cv2.waitKey()
+        # cv2.destroyAllWindows()
+
+
