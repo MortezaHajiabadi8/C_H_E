@@ -167,3 +167,25 @@ for i in range(3):
     checkbox_points[i].append(checkboxes_names[i])
 checkboxes = checkbox_points.copy() #[[7, 55, 'PHD'], [8, 159, 'MS'], [9, 307, 'BS']]
 
+for contour in checkboxes:
+    j = areas[contour[0]][0]
+    cnt = contours[j]
+    approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+    p1 = (approx[0][0][0], approx[0][0][1])
+    p4 = (approx[7][0][0], approx[7][0][1])
+    width = approx[3][0][0]-approx[0][0][0]
+    height = approx[7][0][1]-approx[0][0][1]
+    p2 = (p1[0]+width, p1[1])
+    p3 = (p1[0]+width, p1[1]+height)
+    p4 = (p1[0], p1[1]+height)
+    source__points = np.array([p1,p2,p3,p4], dtype=np.float32)
+    dst_points = np.array([(0,0),
+                           (width,0),
+                           (width,height),
+                           (0,height)], dtype=np.float32)
+    H = cv2.getPerspectiveTransform(source__points, dst_points)
+    pic = cv2.warpPerspective(croped_form,H,  (height,width))
+    cv2.imwrite(contour[2]+".jpg", pic)
+    # cv2.imshow(contour[2], pic)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
