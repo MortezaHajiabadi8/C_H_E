@@ -26,8 +26,6 @@ def addPoints(p,q):
 
 def detectForm(src):
         
-    
-
     #Load the dictionary that was used to generate the markers.
     dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
 
@@ -83,7 +81,7 @@ def invertForm(src):
 
     # cv2.imshow('inverted_form', inverted_form)
     # cv2.waitKey()
-    return invertForm
+    return inverted_form
 
 def thresholdedForm(src):
     #apply threshoding
@@ -245,7 +243,7 @@ def main():
     form = detectForm(I)
     croped_form = cropForm(form)
     inverted_form = invertForm(croped_form)
-    thresholded_form = thresholdedForm(invertForm)
+    thresholded_form = thresholdedForm(inverted_form)
     img_vh = find_lines(inverted_form, thresholded_form)
     contours = find_contours(img_vh)
     fields, boxes, areas = find_fields_and_boxes(contours)
