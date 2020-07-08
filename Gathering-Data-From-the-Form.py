@@ -1,5 +1,6 @@
 import cv2 
 import numpy as np
+import glob
 
 def sort_contours(cnts, method="left-to-right"):    
     # initialize the reverse flag and sort index
@@ -86,7 +87,7 @@ def invertForm(src):
 def thresholdedForm(src):
     #apply threshoding
     threshold = 90
-    ret , T = cv2.threshold(src,threshold,255,cv2.THRESH_BINARY)
+    ret , T = cv2.threshold(src,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
     # cv2.imshow('Thresholded', T)
     # cv2.waitKey()
@@ -216,7 +217,7 @@ def detect_and_write_fileds_to_file(big_fields, areas, contours, croped_form):
         w = width//8
         up = (approx[0][0][0],approx[0][0][1])
         down = (approx[3][0][0],approx[3][0][1])
-        
+
         dst_points = np.array([(0,0),
                             (w,0),
                             (w,height),
