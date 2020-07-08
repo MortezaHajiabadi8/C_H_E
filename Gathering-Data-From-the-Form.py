@@ -149,3 +149,21 @@ for i in range(3):
     big_fileds_points[i] = list(big_fileds_points[i])
     big_fileds_points[i].append(big_fileds_names[i])
 big_fileds = big_fileds_points.copy() #[[2, 125, 'ID'], [3, 188, 'FN'], [1, 247, 'LN']]
+
+#assign Appropriate name to checkboxes by use of coordinates of points
+checkboxes = [7,8,9]
+checkbox_points = []
+for i in checkboxes:
+    j = areas[i][0]
+    cnt = contours[j]
+    approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+    checkbox_points.append(approx[0][0][0])
+
+checkbox_points = zip(checkboxes,checkbox_points)
+checkbox_points = sorted(checkbox_points, key=lambda x: x[1])
+checkboxes_names = ["PHD", "MS", "BS"]
+for i in range(3):
+    checkbox_points[i] = list(checkbox_points[i])
+    checkbox_points[i].append(checkboxes_names[i])
+checkboxes = checkbox_points.copy() #[[7, 55, 'PHD'], [8, 159, 'MS'], [9, 307, 'BS']]
+
