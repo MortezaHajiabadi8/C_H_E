@@ -108,3 +108,10 @@ image_2 = cv2.erode(T, hor_kernel, iterations=3)
 horizontal_lines = cv2.dilate(image_2, hor_kernel, iterations=3)
 # cv2.imshow("horizontal", horizontal_lines)
 # cv2.waitKey()
+
+# Combine horizontal and vertical lines in a new third image, with both having same weight.
+img_vh = cv2.addWeighted(vertical_lines, 0.5, horizontal_lines, 0.5, 0.0)#Eroding and thesholding the image
+img_vh = cv2.erode(~img_vh, kernel, iterations=2)
+thresh, img_vh = cv2.threshold(img_vh,128,255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+# cv2.imshow("img_vh", img_vh)
+# cv2.waitKey()
