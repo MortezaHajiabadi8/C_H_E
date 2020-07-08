@@ -102,3 +102,9 @@ image_1 = cv2.erode(T, ver_kernel, iterations=3)
 vertical_lines = cv2.dilate(image_1, ver_kernel, iterations=3)
 # cv2.imshow("vertical", vertical_lines)
 # cv2.waitKey()
+
+#Use horizontal kernel to detect and save the horizontal lines in a jpg
+image_2 = cv2.erode(T, hor_kernel, iterations=3)
+horizontal_lines = cv2.dilate(image_2, hor_kernel, iterations=3)
+# cv2.imshow("horizontal", horizontal_lines)
+# cv2.waitKey()
