@@ -96,3 +96,9 @@ ver_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, kernel_len))
 hor_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_len, 1))
 # A kernel of 2x2
 kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+
+#Use vertical kernel to detect and save the vertical lines in a jpg
+image_1 = cv2.erode(T, ver_kernel, iterations=3)
+vertical_lines = cv2.dilate(image_1, ver_kernel, iterations=3)
+# cv2.imshow("vertical", vertical_lines)
+# cv2.waitKey()
