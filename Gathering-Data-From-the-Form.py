@@ -129,3 +129,7 @@ for c in contours:
 areas = list(enumerate(areas))
 areas = sorted(areas, key=lambda x: x[1])
 areas = areas[::-1]
+
+#index of big countors are 1,2,3,7,8,9 in areas
+#index of big field are 1,2,3
+#index of checkbox are 10,11,12
