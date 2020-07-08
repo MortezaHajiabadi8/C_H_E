@@ -133,3 +133,19 @@ areas = areas[::-1]
 #index of big countors are 1,2,3,7,8,9 in areas
 #index of big field are 1,2,3
 #index of checkbox are 10,11,12
+
+big_fileds = [1,2,3]
+#assign Appropriate name to fields by use of coordinates of points
+big_fileds_points = []
+for i in big_fileds:
+    j = areas[i][0]
+    cnt = contours[j]
+    approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
+    big_fileds_points.append(approx[0][0][1])
+big_fileds_points = zip(big_fileds,big_fileds_points)
+big_fileds_points = sorted(big_fileds_points, key=lambda x: x[1])
+big_fileds_names = ["ID", "FN", "LN"]
+for i in range(3):
+    big_fileds_points[i] = list(big_fileds_points[i])
+    big_fileds_points[i].append(big_fileds_names[i])
+big_fileds = big_fileds_points.copy() #[[2, 125, 'ID'], [3, 188, 'FN'], [1, 247, 'LN']]
