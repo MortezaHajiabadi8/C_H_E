@@ -1,8 +1,29 @@
 import cv2 
 import numpy as np
+import pytesseract
 
-def comparator(tupleElem):
-    return tupleElem[1][4]
+def sort_contours(cnts, method="left-to-right"):    
+    # initialize the reverse flag and sort index
+    reverse = False
+    i = 0    
+    # handle if we need to sort in reverse
+    if method == "right-to-left" or method == "bottom-to-top":
+        reverse = True    
+    # handle if we are sorting against the y-coordinate rather than
+    # the x-coordinate of the bounding box
+    if method == "top-to-bottom" or method == "bottom-to-top":
+        i = 1   
+    # construct the list of bounding boxes and sort them from top to
+    # bottom
+    boundingBoxes = [cv2.boundingRect(c) for c in cnts]
+    (cnts, boundingBoxes) = zip(*sorted(zip(cnts, boundingBoxes), key=lambda b:b[1][i], reverse=reverse))   
+    # return the list of sorted contours and bounding boxes
+    return (cnts, boundingBoxes)
+
+def addPoints(p,q):
+    m = p[0]+q[0]
+    n = p[1]+q[1]
+    return (m,n)
 
 I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
 
@@ -44,6 +65,23 @@ H = cv2.getPerspectiveTransform(src_points, dest_points)
 
 form = cv2.warpPerspective(I,H,  (rawForm.shape[1],rawForm.shape[0]))
 
-cv2.imshow('form', form)
-cv2.waitKey()
+# cv2.imshow("form", form)
+# cv2.waitKey()
 
+#crop form to delete dictionaries
+croped_form = form[110:600, :]
+# cv2.imshow("cropped", croped_form)
+# cv2.waitKey()
+
+#invert form to extract rectangle
+inverted_form = 255 - croped_form
+
+# cv2.imshow('inverted_form', inverted_form)
+# cv2.waitKey()
+
+#apply threshoding
+threshold = 90
+ret , T = cv2.threshold(inverted_form,threshold,255,cv2.THRESH_BINARY)
+
+# cv2.imshow('Thresholded', T)
+# cv2.waitKey()
