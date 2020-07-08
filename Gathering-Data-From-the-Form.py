@@ -115,3 +115,9 @@ img_vh = cv2.erode(~img_vh, kernel, iterations=2)
 thresh, img_vh = cv2.threshold(img_vh,128,255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 # cv2.imshow("img_vh", img_vh)
 # cv2.waitKey()
+
+# Detect contours for following box detection
+_, contours, _ = cv2.findContours(img_vh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+# Sort all the contours by top to bottom.
+contours, boundingBoxes = sort_contours(contours, method="top-to-bottom")
