@@ -121,3 +121,11 @@ _, contours, _ = cv2.findContours(img_vh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
 
 # Sort all the contours by top to bottom.
 contours, boundingBoxes = sort_contours(contours, method="top-to-bottom")
+
+#find big contours to detect fields and checkboxes
+areas = []
+for c in contours:
+    areas.append(cv2.contourArea(c))
+areas = list(enumerate(areas))
+areas = sorted(areas, key=lambda x: x[1])
+areas = areas[::-1]
