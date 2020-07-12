@@ -115,6 +115,7 @@ def find_boxes_and_checkboxes(croped_form,contours):
     return boxes, checkboxes
 
 def write_image_of_boxes(croped_form,boxes):
+    image_of_boxes = []
     for box in boxes:
         x,y,w,h = cv2.boundingRect(box[0])
         dst_points = np.array([(0,0),
@@ -125,7 +126,8 @@ def write_image_of_boxes(croped_form,boxes):
                 src_points = np.array([(x+i*((w-6)/8),y), (x+(i+1)*((w-6)/8),y), (x+(i+1)*((w-6)/8),y+h), (x+i*((w-6)/8),y+h)], dtype=np.float32)
                 H = cv2.getPerspectiveTransform(src_points, dst_points)
                 pic = cv2.warpPerspective(croped_form,H,  (h,ceil(w/8)))
-                cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
+                image_of_boxes.append(pic)
+                # cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
                 # cv2.imshow(box[1]+str(i+1), pic)
                 # key = cv2.waitKey(0) & 0xFF
                 # if key != ord('q'):
@@ -134,6 +136,7 @@ def write_image_of_boxes(croped_form,boxes):
                 #     cv2.destroyAllWindows() 
                 #     break 
 
+    return image_of_boxes
 def write_image_of_checkboxes(croped_form, checkboxes):
     for checkbox in checkboxes:
         x,y,w,h = cv2.boundingRect(checkbox[0])
