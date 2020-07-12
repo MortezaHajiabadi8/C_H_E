@@ -2,29 +2,6 @@ import cv2
 import numpy as np
 import glob
 
-def sort_contours(cnts, method="left-to-right"):    
-    # initialize the reverse flag and sort index
-    reverse = False
-    i = 0    
-    # handle if we need to sort in reverse
-    if method == "right-to-left" or method == "bottom-to-top":
-        reverse = True    
-    # handle if we are sorting against the y-coordinate rather than
-    # the x-coordinate of the bounding box
-    if method == "top-to-bottom" or method == "bottom-to-top":
-        i = 1   
-    # construct the list of bounding boxes and sort them from top to
-    # bottom
-    boundingBoxes = [cv2.boundingRect(c) for c in cnts]
-    (cnts, boundingBoxes) = zip(*sorted(zip(cnts, boundingBoxes), key=lambda b:b[1][i], reverse=reverse))   
-    # return the list of sorted contours and bounding boxes
-    return (cnts, boundingBoxes)
-
-def addPoints(p,q):
-    m = p[0]+q[0]
-    n = p[1]+q[1]
-    return (m,n)
-
 def detectForm(src):
         
     #Load the dictionary that was used to generate the markers.
@@ -70,19 +47,10 @@ def detectForm(src):
     return form
 
 def cropForm(src):
-    #crop form to delete dictionaries
-    croped_form = src[110:600, :]
+    croped_form = src[110:600, :410]
     # cv2.imshow("cropped", croped_form)
     # cv2.waitKey()
     return croped_form
-
-def invertForm(src):
-    #invert form to extract rectangle
-    inverted_form = 255 - src
-
-    # cv2.imshow('inverted_form', inverted_form)
-    # cv2.waitKey()
-    return inverted_form
 
 def thresholdedForm(src):
     #apply threshoding
@@ -246,10 +214,12 @@ def main():
     inverted_form = invertForm(croped_form)
     thresholded_form = thresholdedForm(inverted_form)
     img_vh = find_lines(inverted_form, thresholded_form)
-    contours = find_contours(img_vh)
+    # contours = find_contours(img_vh)
+    contours = find_contours(thresholded_form)
     fields, boxes, areas = find_fields_and_boxes(contours)
-    detect_and_write_boxes_to_file(boxes, areas, contours, croped_form)
-    detect_and_write_fileds_to_file(fields, areas, contours, croped_form)
+    # detect_and_write_boxes_to_file(boxes, areas, contours, croped_form)
+    # detect_and_write_fileds_to_file(fields, areas, contours, croped_form)
+    print(len(contours))
     
     
 if __name__ == '__main__':
