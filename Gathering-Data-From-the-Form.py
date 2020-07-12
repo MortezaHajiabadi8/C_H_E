@@ -1,6 +1,7 @@
 import cv2 
 import numpy as np
 import glob
+from math import ceil, floor
 
 def detectForm(src):
         
@@ -113,7 +114,25 @@ def find_boxes_and_checkboxes(croped_form,contours):
     
     return boxes, checkboxes
 
-
+def write_image_of_boxes(croped_form,boxes):
+    for box in boxes:
+        x,y,w,h = cv2.boundingRect(box[0])
+        dst_points = np.array([(0,0),
+                            (w/8,0),
+                            (w/8,h),
+                            (0,h)], dtype=np.float32)
+        for i in range(8):
+                src_points = np.array([(x+i*((w-6)/8),y), (x+(i+1)*((w-6)/8),y), (x+(i+1)*((w-6)/8),y+h), (x+i*((w-6)/8),y+h)], dtype=np.float32)
+                H = cv2.getPerspectiveTransform(src_points, dst_points)
+                pic = cv2.warpPerspective(croped_form,H,  (h,ceil(w/8)))
+                cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
+                # cv2.imshow(box[1]+str(i+1), pic)
+                # key = cv2.waitKey(0) & 0xFF
+                # if key != ord('q'):
+                #     cv2.destroyAllWindows()
+                # elif key == ord('q'):  
+                #     cv2.destroyAllWindows() 
+                #     break 
 
 def main():
     I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
@@ -121,7 +140,8 @@ def main():
     croped_form = cropForm(form)
     thresholded_form = thresholdedForm(croped_form)
     contours = find_contours(thresholded_form)
-    
+    boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours)
+    write_image_of_boxes(croped_form, boxes)
     
     
     
