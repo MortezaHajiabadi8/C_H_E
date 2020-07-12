@@ -1,6 +1,6 @@
 import cv2 
 import numpy as np
-import glob
+from glob import glob
 from math import ceil, floor
 
 def detectForm(src):
@@ -102,13 +102,13 @@ def find_boxes_and_checkboxes(croped_form,contours):
     checkboxes = sorted(checkboxes, key=lambda x:x[1])
     checkboxes = [[checkboxes[i][0],checkbox_names[i]] for i in range(len(checkboxes))]
     
-    # for cnt in boxes+checkboxes:
-    #     x,y,w,h = cv2.boundingRect(cnt[0])
-    #     cv2.rectangle(img2, (x,y), (x+w,y+h), (0,255,255), 2)
-    #     cv2.imshow('image2', img2) 
-    #     if cv2.waitKey(0) & 0xFF == ord('q'):
-    #         cv2.destroyAllWindows()
-    #         break
+    for cnt in boxes+checkboxes:
+        x,y,w,h = cv2.boundingRect(cnt[0])
+        cv2.rectangle(img2, (x,y), (x+w,y+h), (0,255,255), 2)
+        cv2.imshow('image2', img2) 
+        if cv2.waitKey(0) & 0xFF == ord('q'):
+            cv2.destroyAllWindows()
+            break
         
         
     
@@ -128,13 +128,13 @@ def write_image_of_boxes(croped_form,boxes):
                 pic = cv2.warpPerspective(croped_form,H,  (h,ceil(w/8)))
                 image_of_boxes.append(pic)
                 cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
-                # cv2.imshow(box[1]+str(i+1), pic)
-                # key = cv2.waitKey(0) & 0xFF
-                # if key != ord('q'):
-                #     cv2.destroyAllWindows()
-                # elif key == ord('q'):  
-                #     cv2.destroyAllWindows() 
-                #     break 
+                cv2.imshow(box[1]+str(i+1), pic)
+                key = cv2.waitKey(0) & 0xFF
+                if key != ord('q'):
+                    cv2.destroyAllWindows()
+                elif key == ord('q'):  
+                    cv2.destroyAllWindows() 
+                    break 
 
 def write_image_of_checkboxes(croped_form, checkboxes):
     image_of_checkboxes = []
@@ -148,14 +148,12 @@ def write_image_of_checkboxes(croped_form, checkboxes):
         H = cv2.getPerspectiveTransform(src_points, dst_points)
         pic = cv2.warpPerspective(croped_form,H,  (h,w))
         cv2.imwrite(checkbox[1]+".jpg", pic)
-        image_of_checkboxes.append(pic)
-        cv2.imshow(checkbox[1], pic)
-        # key = cv2.waitKey(0) & 0xFF
-        # if key != ord('q'):
-        #     cv2.destroyAllWindows()
-        # elif key == ord('q'):  
-        #     cv2.destroyAllWindows() 
-        #     break 
+        key = cv2.waitKey(0) & 0xFF
+        if key != ord('q'):
+            cv2.destroyAllWindows()
+        elif key == ord('q'):  
+            cv2.destroyAllWindows() 
+            break 
         
 def concat_tile(im_list_2d):
     return np.concatenate([np.concatenate(im_list_h, axis=1) for im_list_h in im_list_2d], axis=0)
@@ -165,14 +163,14 @@ def to_matrix(l, n):
     return [l[i:i+n] for i in range(0, len(l), n)]
     
 def main():
-    I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
-    form = detectForm(I)
-    croped_form = cropForm(form)
-    thresholded_form = thresholdedForm(croped_form)
-    contours = find_contours(thresholded_form)
-    boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours)
-    write_image_of_boxes(croped_form, boxes)
-    write_image_of_checkboxes(croped_form, checkboxes)
+        I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
+        form = detectForm(I)
+        croped_form = cropForm(form)
+        thresholded_form = thresholdedForm(croped_form)
+        contours = find_contours(thresholded_form)
+        boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours)
+        write_image_of_boxes(croped_form, boxes)
+        write_image_of_checkboxes(croped_form, checkboxes)
     
         
 
