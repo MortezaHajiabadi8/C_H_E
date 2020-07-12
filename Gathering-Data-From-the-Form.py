@@ -134,6 +134,25 @@ def write_image_of_boxes(croped_form,boxes):
                 #     cv2.destroyAllWindows() 
                 #     break 
 
+def write_image_of_checkboxes(croped_form, checkboxes):
+    for checkbox in checkboxes:
+        x,y,w,h = cv2.boundingRect(checkbox[0])
+        dst_points = np.array([(0,0),
+                            (w,0),
+                            (w,h),
+                            (0,h)], dtype=np.float32)
+        src_points = np.array([(x,y), (x+w,y), (x+w,y+h),(x,y+h)], dtype=np.float32)
+        H = cv2.getPerspectiveTransform(src_points, dst_points)
+        pic = cv2.warpPerspective(croped_form,H,  (h,w))
+        cv2.imwrite(checkbox[1]+".jpg", pic)
+        # cv2.imshow(checkbox[1], pic)
+        # key = cv2.waitKey(0) & 0xFF
+        # if key != ord('q'):
+        #     cv2.destroyAllWindows()
+        # elif key == ord('q'):  
+        #     cv2.destroyAllWindows() 
+        #     break 
+        
 def main():
     I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
     form = detectForm(I)
@@ -142,7 +161,7 @@ def main():
     contours = find_contours(thresholded_form)
     boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours)
     write_image_of_boxes(croped_form, boxes)
-    
+    write_image_of_checkboxes(croped_form, checkboxes)
     
     
 if __name__ == '__main__':
