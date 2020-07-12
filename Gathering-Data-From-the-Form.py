@@ -66,124 +66,63 @@ def find_contours(src):
 
     return contours
 
-def find_fields_and_boxes(contours):
-    #find big contours to detect fields and checkboxes
-    areas = []
-    for c in contours:
-        areas.append(cv2.contourArea(c))
-    areas = list(enumerate(areas))
-    areas = sorted(areas, key=lambda x: x[1])
-    areas = areas[::-1]
-
-    #index of big countors are 1,2,3,7,8,9 in areas
-    #index of big field are 1,2,3
-    #index of checkbox are 10,11,12
-
-    big_fileds = [1,2,3]
-    #assign Appropriate name to fields by use of coordinates of points
-    big_fileds_points = []
-    for i in big_fileds:
-        j = areas[i][0]
-        cnt = contours[j]
-        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
-        big_fileds_points.append(approx[0][0][1])
-    big_fileds_points = zip(big_fileds,big_fileds_points)
-    big_fileds_points = sorted(big_fileds_points, key=lambda x: x[1])
-    big_fileds_names = ["ID", "FN", "LN"]
-    for i in range(3):
-        big_fileds_points[i] = list(big_fileds_points[i])
-        big_fileds_points[i].append(big_fileds_names[i])
-    big_fileds = big_fileds_points.copy() #[[2, 125, 'ID'], [3, 188, 'FN'], [1, 247, 'LN']]
-
-    #assign Appropriate name to checkboxes by use of coordinates of points
-    checkboxes = [7,8,9]
-    checkbox_points = []
-    for i in checkboxes:
-        j = areas[i][0]
-        cnt = contours[j]
-        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
-        checkbox_points.append(approx[0][0][0])
-
-    checkbox_points = zip(checkboxes,checkbox_points)
-    checkbox_points = sorted(checkbox_points, key=lambda x: x[1])
-    checkboxes_names = ["PHD", "MS", "BS"]
-    for i in range(3):
-        checkbox_points[i] = list(checkbox_points[i])
-        checkbox_points[i].append(checkboxes_names[i])
-    checkboxes = checkbox_points.copy() #[[7, 55, 'PHD'], [8, 159, 'MS'], [9, 307, 'BS']]
-
-    return big_fileds,checkboxes, areas
-
-def detect_and_write_boxes_to_file(checkboxes, areas, contours, croped_form):
-    for contour in checkboxes:
-        j = areas[contour[0]][0]
-        cnt = contours[j]
-        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
-        p1 = (approx[0][0][0], approx[0][0][1])
-        p4 = (approx[7][0][0], approx[7][0][1])
-        width = approx[3][0][0]-approx[0][0][0]
-        height = approx[7][0][1]-approx[0][0][1]
-        p2 = (p1[0]+width, p1[1])
-        p3 = (p1[0]+width, p1[1]+height)
-        p4 = (p1[0], p1[1]+height)
-        source__points = np.array([p1,p2,p3,p4], dtype=np.float32)
-        dst_points = np.array([(0,0),
-                            (width,0),
-                            (width,height),
-                            (0,height)], dtype=np.float32)
-        H = cv2.getPerspectiveTransform(source__points, dst_points)
-        pic = cv2.warpPerspective(croped_form,H,  (height,width))
-        cv2.imwrite(contour[2]+".jpg", pic)
-        # cv2.imshow(contour[2], pic)
-        # cv2.waitKey()
-        # cv2.destroyAllWindows()
-
-def detect_and_write_fileds_to_file(big_fields, areas, contours, croped_form):
-    for contour in big_fields:
+def find_boxes_and_checkboxes(croped_form,contours):
+    img2 = cv2.cvtColor(croped_form, cv2.COLOR_GRAY2BGR)
+    my_contours = []
+    for cnt in contours : 
+        area = cv2.contourArea(cnt) 
+        if 220 < area < 25000: 
+            approx = cv2.approxPolyDP(cnt,  
+                                    0.009 * cv2.arcLength(cnt, True), True) 
+    
+            if(len(approx) >= 4):  
+                my_contours.append(cnt)
+    
+    top_left_corner = []
+    boxes = []
+    checkboxes = []
+    box_names = ["ID", "FN", "LN"]        
+    checkbox_names = ["PHD", "MS", "BS"]
+    for cnt in my_contours:
+        x,y,w,h = cv2.boundingRect(cnt)
+        tolerance = [[x+t1,y+t2] for t1 in range(-6,7) for t2 in range(-6,7)]
+        if  not [i for i in top_left_corner if i in tolerance]:
+            top_left_corner.append([x,y])
+            area = cv2.contourArea(cnt) 
+            if area > 1000:
+                boxes.append([cnt,y])
+            else:
+                checkboxes.append([cnt,x])
+            
+            
+    boxes = sorted(boxes, key=lambda x:x[1])
+    boxes = [[boxes[i][0],box_names[i]] for i in range(len(boxes))]
+  
+    checkboxes = sorted(checkboxes, key=lambda x:x[1])
+    checkboxes = [[checkboxes[i][0],checkbox_names[i]] for i in range(len(checkboxes))]
+    
+    for cnt in boxes+checkboxes:
+        x,y,w,h = cv2.boundingRect(cnt[0])
+        cv2.rectangle(img2, (x,y), (x+w,y+h), (0,255,255), 2)
+        cv2.imshow('image2', img2) 
+        if cv2.waitKey(0) & 0xFF == ord('q'):
+            cv2.destroyAllWindows()
+            break
         
-        j = areas[contour[0]][0]
-        cnt = contours[j]
-        approx = cv2.approxPolyDP(cnt, 0.009 * cv2.arcLength(cnt, True), True)
-        width = approx[1][0][0]-approx[0][0][0]
-        height = approx[3][0][1]-approx[0][0][1]
-        w = width//8
-        up = (approx[0][0][0],approx[0][0][1])
-        down = (approx[3][0][0],approx[3][0][1])
+        
+    
+    return boxes, checkboxes
 
-        dst_points = np.array([(0,0),
-                            (w,0),
-                            (w,height),
-                            (0,height)], dtype=np.float32)
-        for k in range(8):
-            tempup1 = (k*w,0)
-            tempup2 = ((k+1)*w,0)
-            tempdown1 =(k*w,0)
-            tempdown2 =((k+1)*w,0)
-            p1 = addPoints(up,tempup1)
-            p2 = addPoints(up,tempup2)
-            p3 = addPoints(down, tempdown2)
-            p4 = addPoints(down, tempdown1)
-            source__points = np.array([p1,p2,p3,p4], dtype=np.float32)
-            H = cv2.getPerspectiveTransform(source__points, dst_points)
-            pic = cv2.warpPerspective(croped_form,H,  (height,w))
-            cv2.imwrite(contour[2]+str(k+1)+".jpg", pic)
-            # cv2.imshow(c[2]+str(k+1), pic)
-            # cv2.waitKey()
-            # cv2.destroyAllWindows()
+
 
 def main():
     I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
     form = detectForm(I)
     croped_form = cropForm(form)
-    inverted_form = invertForm(croped_form)
-    thresholded_form = thresholdedForm(inverted_form)
-    img_vh = find_lines(inverted_form, thresholded_form)
-    # contours = find_contours(img_vh)
+    thresholded_form = thresholdedForm(croped_form)
     contours = find_contours(thresholded_form)
-    fields, boxes, areas = find_fields_and_boxes(contours)
-    # detect_and_write_boxes_to_file(boxes, areas, contours, croped_form)
-    # detect_and_write_fileds_to_file(fields, areas, contours, croped_form)
-    print(len(contours))
+    
+    
     
     
 if __name__ == '__main__':
