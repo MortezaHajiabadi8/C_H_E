@@ -138,6 +138,7 @@ def write_image_of_boxes(croped_form,boxes):
 
     return image_of_boxes
 def write_image_of_checkboxes(croped_form, checkboxes):
+    image_of_checkboxes = []
     for checkbox in checkboxes:
         x,y,w,h = cv2.boundingRect(checkbox[0])
         dst_points = np.array([(0,0),
@@ -148,6 +149,7 @@ def write_image_of_checkboxes(croped_form, checkboxes):
         H = cv2.getPerspectiveTransform(src_points, dst_points)
         pic = cv2.warpPerspective(croped_form,H,  (h,w))
         cv2.imwrite(checkbox[1]+".jpg", pic)
+        image_of_checkboxes.append(pic)
         # cv2.imshow(checkbox[1], pic)
         # key = cv2.waitKey(0) & 0xFF
         # if key != ord('q'):
@@ -155,6 +157,7 @@ def write_image_of_checkboxes(croped_form, checkboxes):
         # elif key == ord('q'):  
         #     cv2.destroyAllWindows() 
         #     break 
+    return image_of_checkboxes
         
 def main():
     I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
