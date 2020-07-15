@@ -3,6 +3,18 @@ import numpy as np
 from glob import glob
 from math import ceil, floor
 
+def detectMarkers(src):
+    src = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
+    parameters =  cv2.aruco.DetectorParameters_create()
+    markerCorners, markerIds, rejectedCandidates = cv2.aruco.detectMarkers(src, dictionary, parameters=parameters) 
+    detectedMarkers = src.copy()
+    cv2.aruco.drawDetectedMarkers(detectedMarkers, markerCorners, markerIds)
+    # cv2.imshow('Markers', detectedMarkers)
+    # cv2.waitKey()
+    return markerCorners, markerIds
+
+    
 def detectForm(src):
         
     #Load the dictionary that was used to generate the markers.
@@ -43,8 +55,8 @@ def detectForm(src):
 
     form = cv2.warpPerspective(src,H,  (rawForm.shape[1],rawForm.shape[0]))
 
-    # cv2.imshow("form", form)
-    # cv2.waitKey()
+    cv2.imshow("form", form)
+    cv2.waitKey()
     return form
 
 def cropForm(src):
@@ -127,7 +139,7 @@ def write_image_of_boxes(croped_form,boxes):
                 H = cv2.getPerspectiveTransform(src_points, dst_points)
                 pic = cv2.warpPerspective(croped_form,H,  (h,ceil(w/8)))
                 image_of_boxes.append(pic)
-                cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
+                # cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
                 cv2.imshow(box[1]+str(i+1), pic)
                 key = cv2.waitKey(0) & 0xFF
                 if key != ord('q'):
@@ -147,7 +159,8 @@ def write_image_of_checkboxes(croped_form, checkboxes):
         src_points = np.array([(x,y), (x+w,y), (x+w,y+h),(x,y+h)], dtype=np.float32)
         H = cv2.getPerspectiveTransform(src_points, dst_points)
         pic = cv2.warpPerspective(croped_form,H,  (h,w))
-        cv2.imwrite(checkbox[1]+".jpg", pic)
+        # cv2.imwrite(checkbox[1]+".jpg", pic)
+        cv2.imshow(checkbox[1], pic)
         key = cv2.waitKey(0) & 0xFF
         if key != ord('q'):
             cv2.destroyAllWindows()
@@ -163,14 +176,19 @@ def to_matrix(l, n):
     return [l[i:i+n] for i in range(0, len(l), n)]
     
 def main():
-        I = cv2.imread('image.jpg', cv2.IMREAD_GRAYSCALE)
-        form = detectForm(I)
-        croped_form = cropForm(form)
-        thresholded_form = thresholdedForm(croped_form)
-        contours = find_contours(thresholded_form)
-        boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours)
-        write_image_of_boxes(croped_form, boxes)
-        write_image_of_checkboxes(croped_form, checkboxes)
+    # for pic in glob('*.jpg'):
+    # print(pic)
+    # I = cv2.imread("image.jpg", cv2.IMREAD_GRAYSCALE)
+    I = cv2.imread("image.jpg")
+    I = cv2.pyrDown(I)
+    detectMarkers(I)
+    # form = detectForm(I)
+    # croped_form = cropForm(form)
+    # thresholded_form = thresholdedForm(croped_form)
+    # contours = find_contours(thresholded_form)
+    # boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours)
+    # write_image_of_boxes(croped_form, boxes)
+    # write_image_of_checkboxes(croped_form, checkboxes)
     
         
 
