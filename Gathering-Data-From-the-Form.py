@@ -42,7 +42,12 @@ def detectForm(src, source_points, dest_points, height, width):
     cv2.imshow("detected form", detected_form)
     cv2.waitKey()
     return detected_form
-    
+  
+def cropForm(detected_form):
+    croped_form = detected_form[200:500, :370]
+    cv2.imshow("cropped", croped_form)
+    cv2.waitKey()
+    return croped_form  
 
     
 def main():
@@ -51,7 +56,7 @@ def main():
     source_points = compute_source_points(markerCorners, markerIds)
     dest_points, height, width = compute_dest_points()
     detected_form = detectForm(I, source_points, dest_points, height, width)
-        
+    croped_form = cropForm(detected_form)
             
 
 if __name__ == '__main__':
