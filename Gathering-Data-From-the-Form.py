@@ -55,7 +55,26 @@ def thresholdForm(croped_form):
     cv2.imshow('Thresholded', T)
     cv2.waitKey()
     return T
-    
+
+def find_contours(src):
+    _, contours, _ = cv2.findContours(src, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    return contours
+
+def find_contours_based_on_area_and_number_of_sides(croped_form, contours):
+    contours_based_on_area_and_number_of_sides = []
+    for contour in contours : 
+        area = cv2.contourArea(contour) 
+        if 220 < area < 25000: 
+            approx = cv2.approxPolyDP(contour, 0.009 * cv2.arcLength(contour, True), True) 
+            number_of_sides = len(approx)
+            if(number_of_sides >= 4):  
+                contours_based_on_area_and_number_of_sides.append(contour)
+                cv2.drawContours(croped_form, [contour], 0, (0,255,255), 2)
+                cv2.imshow('contours_based_on_area_and_number_of_sides', croped_form)
+                cv2.waitKey()
+                
+    return contours_based_on_area_and_number_of_sides
+        
 def main():
     I = cv2.imread("image.jpg")
     markerCorners, markerIds = detectMarkers(I)
@@ -63,7 +82,10 @@ def main():
     dest_points, height, width = compute_dest_points()
     detected_form = detectForm(I, source_points, dest_points, height, width)
     croped_form = cropForm(detected_form)
-    thresholded_form = thresholdForm(croped_form)        
+    thresholded_form = thresholdForm(croped_form)  
+    contours = find_contours(thresholded_form)
+    contours_based_on_area_and_number_of_sides = find_contours_based_on_area_and_number_of_sides(croped_form, contours)
+    
 
 if __name__ == '__main__':
     main()
