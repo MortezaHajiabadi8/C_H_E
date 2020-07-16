@@ -27,6 +27,14 @@ def compute_source_points(markerCorners, markerIds):
     
     return source_points 
 
+def compute_dest_points():
+    height = 700
+    width = 500
+    dest_points = np.array([(0,0),
+                           (width,0),
+                           (width,height),
+                           (0,height)], dtype=np.float32)
+    return dest_points, height, width
 
     
     
@@ -36,7 +44,7 @@ def main():
     I = cv2.imread("image.jpg")
     markerCorners, markerIds = detectMarkers(I)
     source_points = compute_source_points(markerCorners, markerIds)
-    
+    dest_points, height, width = compute_dest_points()
         
         
             
