@@ -118,6 +118,19 @@ def assign_name_to_checkboxes(croped_form, checkboxes):
         cv2.destroyAllWindows()
     return checkboxes_with_name
 
+def write_image_of_boxes(croped_form, boxes_with_name):
+    for box in boxes_with_name:
+        x,y,w,h = cv2.boundingRect(box[0])
+        little_box_width = w/8
+        dest_points = np.array([(0,0),(little_box_width,0),(little_box_width,h),(0,h)], dtype=np.float32)
+        number_of_little_box = 8
+        for i in range(number_of_little_box):
+            sourc_points = np.array([(x+i*little_box_width,y), (x+(i+1)*little_box_width,y), (x+(i+1)*little_box_width,y+h), (x+i*little_box_width,y+h)], dtype=np.float32)
+            H = cv2.getPerspectiveTransform(sourc_points, dest_points)
+            pic = cv2.warpPerspective(croped_form,H,  (h,ceil(w/8)))
+            cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
+
+       
 def main():
     I = cv2.imread("image.jpg")
     markerCorners, markerIds = detectMarkers(I)
@@ -131,6 +144,7 @@ def main():
     boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours_based_on_area_and_number_of_sides)
     boxes_with_name = assign_name_to_boxes(croped_form, boxes)
     checkboxes_with_name = assign_name_to_checkboxes(croped_form, checkboxes)
+    write_image_of_boxes(croped_form, boxes_with_name)
     
 if __name__ == '__main__':
     main()
