@@ -49,6 +49,12 @@ def cropForm(detected_form):
     cv2.waitKey()
     return croped_form  
 
+def thresholdForm(croped_form):
+    croped_form = cv2.cvtColor(croped_form, cv2.COLOR_BGR2GRAY)
+    ret , T = cv2.threshold(croped_form,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    cv2.imshow('Thresholded', T)
+    cv2.waitKey()
+    return T
     
 def main():
     I = cv2.imread("image.jpg")
@@ -57,7 +63,7 @@ def main():
     dest_points, height, width = compute_dest_points()
     detected_form = detectForm(I, source_points, dest_points, height, width)
     croped_form = cropForm(detected_form)
-            
+    thresholded_form = thresholdForm(croped_form)        
 
 if __name__ == '__main__':
     main()
