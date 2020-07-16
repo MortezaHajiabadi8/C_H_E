@@ -74,7 +74,25 @@ def find_contours_based_on_area_and_number_of_sides(croped_form, contours):
                 cv2.waitKey()
                 
     return contours_based_on_area_and_number_of_sides
-        
+
+def find_boxex_and_checkboxes(croped_form, contours_based_on_area_and_number_of_sides):
+    top_left_corner = []
+    boxes = []
+    checkboxes = []
+    
+    for contour in contours_based_on_area_and_number_of_sides:
+        x,y,w,h = cv2.boundingRect(contour)
+        tolerance = [[x+t1,y+t2] for t1 in range(-6,7) for t2 in range(-6,7)]
+        if  not [i for i in top_left_corner if i in tolerance]:
+            top_left_corner.append([x,y])
+            area = cv2.contourArea(contour) 
+            if area > 1000:
+                boxes.append([contour,y])
+            else:
+                checkboxes.append([contour,x])
+    
+    return boxes, checkboxes
+
 def main():
     I = cv2.imread("image.jpg")
     markerCorners, markerIds = detectMarkers(I)
