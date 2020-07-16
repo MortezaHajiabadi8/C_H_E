@@ -130,7 +130,16 @@ def write_image_of_boxes(croped_form, boxes_with_name):
             pic = cv2.warpPerspective(croped_form,H,  (h,ceil(w/8)))
             cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
 
-       
+def write_image_of_checkboxes(croped_form, checkboxes_with_name):
+    for checkbox in checkboxes_with_name:
+        x,y,w,h = cv2.boundingRect(checkbox[0])
+        dest_points = np.array([(0,0),(w,0),(w,h),(0,h)], dtype=np.float32)
+        source_points = np.array([(x,y), (x+w,y), (x+w,y+h),(x,y+h)], dtype=np.float32)
+        H = cv2.getPerspectiveTransform(source_points, dest_points)
+        pic = cv2.warpPerspective(croped_form,H,  (h,w))
+        cv2.imwrite(checkbox[1]+".jpg", pic)
+        
+        
 def main():
     I = cv2.imread("image.jpg")
     markerCorners, markerIds = detectMarkers(I)
@@ -145,6 +154,7 @@ def main():
     boxes_with_name = assign_name_to_boxes(croped_form, boxes)
     checkboxes_with_name = assign_name_to_checkboxes(croped_form, checkboxes)
     write_image_of_boxes(croped_form, boxes_with_name)
+    write_image_of_checkboxes(croped_form, checkboxes_with_name)
     
 if __name__ == '__main__':
     main()
