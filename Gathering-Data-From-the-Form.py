@@ -36,7 +36,12 @@ def compute_dest_points():
                            (0,height)], dtype=np.float32)
     return dest_points, height, width
 
-    
+def detectForm(src, source_points, dest_points, height, width):
+    H = cv2.getPerspectiveTransform(source_points, dest_points)
+    detected_form = cv2.warpPerspective(src,H,  (width, height))
+    cv2.imshow("detected form", detected_form)
+    cv2.waitKey()
+    return detected_form
     
 
     
@@ -45,7 +50,7 @@ def main():
     markerCorners, markerIds = detectMarkers(I)
     source_points = compute_source_points(markerCorners, markerIds)
     dest_points, height, width = compute_dest_points()
-        
+    detected_form = detectForm(I, source_points, dest_points, height, width)
         
             
 
