@@ -61,6 +61,7 @@ def find_contours(src):
     return contours
 
 def find_contours_based_on_area_and_number_of_sides(croped_form, contours):
+    out = croped_form.copy()
     contours_based_on_area_and_number_of_sides = []
     for contour in contours : 
         area = cv2.contourArea(contour) 
@@ -69,13 +70,13 @@ def find_contours_based_on_area_and_number_of_sides(croped_form, contours):
             number_of_sides = len(approx)
             if(number_of_sides >= 4):  
                 contours_based_on_area_and_number_of_sides.append(contour)
-                cv2.drawContours(croped_form, [contour], 0, (0,255,255), 2)
-                cv2.imshow('contours_based_on_area_and_number_of_sides', croped_form)
+                cv2.drawContours(out, [contour], 0, (0,255,255), 2)
+                cv2.imshow('contours_based_on_area_and_number_of_sides', out)
                 cv2.waitKey()
-                
+    cv2.destroyAllWindows()           
     return contours_based_on_area_and_number_of_sides
 
-def find_boxex_and_checkboxes(croped_form, contours_based_on_area_and_number_of_sides):
+def find_boxes_and_checkboxes(croped_form, contours_based_on_area_and_number_of_sides):
     top_left_corner = []
     boxes = []
     checkboxes = []
@@ -93,6 +94,18 @@ def find_boxex_and_checkboxes(croped_form, contours_based_on_area_and_number_of_
     
     return boxes, checkboxes
 
+def assign_name_to_boxes(croped_form, boxes):
+    box_names = ["ID", "FN", "LN"] 
+    sorted_boxes = sorted(boxes, key=lambda x:x[1])
+    boxes_with_name = [[sorted_boxes[i][0],box_names[i]] for i in range(len(sorted_boxes))]
+    for box in boxes_with_name:
+        out = croped_form.copy()
+        cv2.drawContours(out, [box[0]], 0, (0,255,255), 2)
+        cv2.imshow(box[1], out)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+    return boxes_with_name
+
 def main():
     I = cv2.imread("image.jpg")
     markerCorners, markerIds = detectMarkers(I)
@@ -103,7 +116,8 @@ def main():
     thresholded_form = thresholdForm(croped_form)  
     contours = find_contours(thresholded_form)
     contours_based_on_area_and_number_of_sides = find_contours_based_on_area_and_number_of_sides(croped_form, contours)
+    boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours_based_on_area_and_number_of_sides)
+    boxes_with_name = assign_name_to_boxes(croped_form, boxes)
     
-
 if __name__ == '__main__':
     main()
