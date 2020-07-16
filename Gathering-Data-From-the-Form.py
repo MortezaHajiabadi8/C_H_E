@@ -106,6 +106,18 @@ def assign_name_to_boxes(croped_form, boxes):
         cv2.destroyAllWindows()
     return boxes_with_name
 
+def assign_name_to_checkboxes(croped_form, checkboxes):
+    checkbox_names = ["PHD", "MS", "BS"]
+    sorted_checkboxes = sorted(checkboxes, key=lambda x:x[1])
+    checkboxes_with_name = [[sorted_checkboxes[i][0],checkbox_names[i]] for i in range(len(sorted_checkboxes))]
+    for checkbox in checkboxes_with_name:
+        out = croped_form.copy()
+        cv2.drawContours(out, [checkbox[0]], 0, (0,255,255), 2)
+        cv2.imshow(checkbox[1], out)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+    return checkboxes_with_name
+
 def main():
     I = cv2.imread("image.jpg")
     markerCorners, markerIds = detectMarkers(I)
@@ -118,6 +130,7 @@ def main():
     contours_based_on_area_and_number_of_sides = find_contours_based_on_area_and_number_of_sides(croped_form, contours)
     boxes, checkboxes = find_boxes_and_checkboxes(croped_form, contours_based_on_area_and_number_of_sides)
     boxes_with_name = assign_name_to_boxes(croped_form, boxes)
+    checkboxes_with_name = assign_name_to_checkboxes(croped_form, checkboxes)
     
 if __name__ == '__main__':
     main()
