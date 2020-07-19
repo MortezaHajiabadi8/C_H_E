@@ -125,7 +125,7 @@ def write_image_of_boxes(croped_form, boxes_with_name):
         dest_points = np.array([(0,0),(little_box_width,0),(little_box_width,h),(0,h)], dtype=np.float32)
         number_of_little_box = 8
         for i in range(number_of_little_box):
-            sourc_points = np.array([(x+i*little_box_width,y), (x+(i+1)*little_box_width,y), (x+(i+1)*little_box_width,y+h), (x+i*little_box_width,y+h)], dtype=np.float32)
+            sourc_points = np.array([(x+i*(little_box_width-1),y), (x+(i+1)*(little_box_width-1),y), (x+(i+1)*(little_box_width-1),y+h), (x+i*(little_box_width-1),y+h)], dtype=np.float32)
             H = cv2.getPerspectiveTransform(sourc_points, dest_points)
             pic = cv2.warpPerspective(croped_form,H,  (h,ceil(w/8)))
             cv2.imwrite(box[1]+str(i+1)+".jpg", pic)
