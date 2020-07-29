@@ -2,6 +2,26 @@ import cv2
 import numpy as np
 from glob import glob
 from math import ceil, floor
+import time
+
+import keras    
+import glob
+from tqdm import tqdm
+import os
+import cv2
+import numpy as np
+from keras.preprocessing.image import load_img, img_to_array
+from sklearn.model_selection import train_test_split
+from keras.utils import to_categorical
+from keras.preprocessing.image import ImageDataGenerator
+from keras.layers import Conv2D, MaxPool2D, Flatten, Dense
+from keras.models import Model
+from keras.layers import Input
+from keras.optimizers import Adam
+from keras.callbacks import ModelCheckpoint
+from matplotlib import pyplot as plt
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 def detectMarkers(src):
     src = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
@@ -39,21 +59,21 @@ def compute_dest_points():
 def detectForm(src, source_points, dest_points, height, width):
     H = cv2.getPerspectiveTransform(source_points, dest_points)
     detected_form = cv2.warpPerspective(src,H,  (width, height))
-    cv2.imshow("detected form", detected_form)
-    cv2.waitKey()
+    # cv2.imshow("detected form", detected_form)
+    # cv2.waitKey()
     return detected_form
   
 def cropForm(detected_form):
     croped_form = detected_form[200:500, :370]
-    cv2.imshow("cropped", croped_form)
-    cv2.waitKey()
+    # cv2.imshow("cropped", croped_form)
+    # cv2.waitKey()
     return croped_form  
 
 def thresholdForm(croped_form):
     croped_form = cv2.cvtColor(croped_form, cv2.COLOR_BGR2GRAY)
     ret , T = cv2.threshold(croped_form,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    cv2.imshow('Thresholded', T)
-    cv2.waitKey()
+    # cv2.imshow('Thresholded', T)
+    # cv2.waitKey()
     return T
 
 def find_contours(src):
@@ -70,9 +90,9 @@ def find_contours_based_on_area_and_number_of_sides(croped_form, contours):
             number_of_sides = len(approx)
             if(number_of_sides >= 4):  
                 contours_based_on_area_and_number_of_sides.append(contour)
-                cv2.drawContours(out, [contour], 0, (0,255,255), 2)
-                cv2.imshow('contours_based_on_area_and_number_of_sides', out)
-                cv2.waitKey()
+                # cv2.drawContours(out, [contour], 0, (0,255,255), 2)
+                # cv2.imshow('contours_based_on_area_and_number_of_sides', out)
+                # cv2.waitKey()
     cv2.destroyAllWindows()           
     return contours_based_on_area_and_number_of_sides
 
@@ -80,7 +100,7 @@ def find_boxes_and_checkboxes(croped_form, contours_based_on_area_and_number_of_
     top_left_corner = []
     boxes = []
     checkboxes = []
-    
+    out = croped_form.copy()
     for contour in contours_based_on_area_and_number_of_sides:
         x,y,w,h = cv2.boundingRect(contour)
         tolerance = [[x+t1,y+t2] for t1 in range(-6,7) for t2 in range(-6,7)]
@@ -91,7 +111,7 @@ def find_boxes_and_checkboxes(croped_form, contours_based_on_area_and_number_of_
                 boxes.append([contour,y])
             else:
                 checkboxes.append([contour,x])
-    
+            
     return boxes, checkboxes
 
 def assign_name_to_boxes(croped_form, boxes):
@@ -101,9 +121,9 @@ def assign_name_to_boxes(croped_form, boxes):
     for box in boxes_with_name:
         out = croped_form.copy()
         cv2.drawContours(out, [box[0]], 0, (0,255,255), 2)
-        cv2.imshow(box[1], out)
-        cv2.waitKey()
-        cv2.destroyAllWindows()
+        # cv2.imshow(box[1], out)
+        # cv2.waitKey()
+        # cv2.destroyAllWindows()
     return boxes_with_name
 
 def assign_name_to_checkboxes(croped_form, checkboxes):
@@ -113,9 +133,9 @@ def assign_name_to_checkboxes(croped_form, checkboxes):
     for checkbox in checkboxes_with_name:
         out = croped_form.copy()
         cv2.drawContours(out, [checkbox[0]], 0, (0,255,255), 2)
-        cv2.imshow(checkbox[1], out)
-        cv2.waitKey()
-        cv2.destroyAllWindows()
+        # cv2.imshow(checkbox[1], out)
+        # cv2.waitKey()
+        # cv2.destroyAllWindows()
     return checkboxes_with_name
 
 def write_image_of_boxes(croped_form, boxes_with_name):
@@ -139,9 +159,26 @@ def write_image_of_checkboxes(croped_form, checkboxes_with_name):
         pic = cv2.warpPerspective(croped_form,H,  (h,w))
         cv2.imwrite(checkbox[1]+".jpg", pic)
         
-        
+def cal_acc(ID_output, FN_output, LN_output):
+    ID_output = np.array(ID_output)
+    FN_output = np.array(FN_output[3:])
+    LN_output = np.array(LN_output)
+    print(ID_output)
+    ID = np.array([8,9,5,2,7,5,0,3])
+    print(ID)
+    print("Accuracy ID: ", (np.sum(ID_output == ID) / len(ID_output)) * 100, "%")
+    FN = np.array([])
+    print(FN_output)
+    print(FN)
+    print("Accuracy FN: ", (np.sum(FN_output == FN) / len(FN_output)) * 100, "%")
+    LN = np.array([9, 0, 1, 0, 31, 5, 0, 7])
+    print(LN_output)
+    print(LN)
+    print("Accuracy LN: ", (np.sum(LN_output == LN) / len(LN_output)) * 100, "%")
+    
+    
 def main():
-    I = cv2.imread("image.jpg")
+    I = cv2.imread('image.jpg')
     markerCorners, markerIds = detectMarkers(I)
     source_points = compute_source_points(markerCorners, markerIds)
     dest_points, height, width = compute_dest_points()
@@ -155,6 +192,8 @@ def main():
     checkboxes_with_name = assign_name_to_checkboxes(croped_form, checkboxes)
     write_image_of_boxes(croped_form, boxes_with_name)
     write_image_of_checkboxes(croped_form, checkboxes_with_name)
+
     
+        
 if __name__ == '__main__':
     main()
